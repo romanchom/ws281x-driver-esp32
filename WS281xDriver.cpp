@@ -67,12 +67,20 @@ WS281xDriver::WS281xDriver(int pinNumber, size_t pixelCount) :
     config.tx_config.idle_output_en = 1;
     config.tx_config.idle_level = RMT_IDLE_LEVEL_LOW;
 
+    mSemaphore = xSemaphoreCreateBinary();
+    xSemaphoreGive(mSemaphore);
+
     rmt_config(&config);
     rmt_driver_install(static_cast<rmt_channel_t>(mChannel), 0, 0);
     rmt_translator_init(static_cast<rmt_channel_t>(mChannel), bytesToPulses);
+
+    rmt_register_tx_end_callback([](rmt_channel_t channel, void *arg) {
+        xSemaphoreGiveFromISR(static_cast<WS281xDriver *>(arg)->mSemaphore, nullptr);
+    }, this);
 }
 
 void WS281xDriver::send() const noexcept
 {
-    rmt_write_sample(static_cast<rmt_channel_t>(mChannel), mData.data(), mData.size(), false);
+    xSemaphoreTake(mSemaphore, portMAX_DELAY);
+    rmt_write_sample(static_cast<rmt_channel_t>(mChannel), (uint8_t const *) mData.data(), mData.size(), false);
 }
