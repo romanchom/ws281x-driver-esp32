@@ -1,8 +1,5 @@
 #pragma once
 
-#include <freertos/FreeRTOS.h>
-#include <freertos/semphr.h>
-
 #include <vector>
 #include <cstddef>
 
@@ -15,5 +12,4 @@ struct WS281xDriver
 private:
     int mChannel;
     std::vector<std::byte> mData;
-    SemaphoreHandle_t mSemaphore;
 };
