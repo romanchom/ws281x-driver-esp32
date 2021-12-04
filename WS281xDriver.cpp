@@ -96,6 +96,7 @@ WS281xDriver::WS281xDriver(int pinNumber, size_t pixelCount) :
     config.gpio_num = static_cast<gpio_num_t>(pinNumber);
     config.mem_block_num = 1;
     config.clk_div = DIVIDER;
+    config.flags = 0;
 
     config.tx_config.loop_en = 0;
     config.tx_config.carrier_en = 0;
